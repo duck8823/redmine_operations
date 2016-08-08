@@ -15,7 +15,11 @@ class OperationMastersController < ApplicationController
 			operations = Operation.where(operation_master_id: operation_master.id)
 			date = []
 			operations.each do |operation|
-				date.push(Issue.find(operation.issue_id).due_date.to_s)
+				begin
+					date.push(Issue.find(operation.issue_id).due_date.to_s)
+				rescue ActiveRecord::RecordNotFound
+					# ignored
+				end
 			end
 			@date[operation_master.id] = date
 		end
@@ -94,11 +98,13 @@ class OperationMastersController < ApplicationController
 				operation.save
 
 				task_masters.each do |task_master|
-					task = Task.create!({
-																	task_master_id: task_master.id,
-																	operation_id: operation.id
-															})
-					task.save
+					if task_master.editable == 1
+						task = Task.create!({
+																		task_master_id: task_master.id,
+																		operation_id: operation.id
+																})
+						task.save
+					end
 				end
 			end
 		end
