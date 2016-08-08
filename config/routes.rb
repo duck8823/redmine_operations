@@ -10,5 +10,6 @@ Rails.application.routes.draw do
 		post 'operations/config/update' => 'operation_masters#update_config'
 		post 'operations/task/add' => 'operation_masters#add_task'
 		get 'operations/add' => 'operation_masters#add'
+		get 'operations/delete' => 'operation_masters#delete'
 	end
 end

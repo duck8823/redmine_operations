@@ -60,11 +60,17 @@
 				</tbody>
 			</table>
 			<a class="icon icon-del delete-task">delete</a>
+			<hr/>
+			<strong>Schedule</strong>
+			<div class="datepicker" data-operation-id="<%= operation_master.id %>" data-date="<%= @date[operation_master.id] %>">
+				<input type="hidden" name="operation_date" />
+			</div>
 		</div>
 		<a class="icon icon-save save">save</a>
-		<a class="icon icon-del delete-op">delete</a>
+		<%= link_to 'delete', {:controller => 'operation_masters', :action => 'delete', :operation_master_id => operation_master.id}, {:class => 'icon icon-del'} %>
 	<% end %>
 	<hr/>
+
 <% end %>
 <%= link_to 'add operation', {:controller => 'operation_masters', :action => 'add', :project_id => @project.id}, {:class => 'icon icon-add'} %>
 <style type="text/css">
@@ -92,6 +98,12 @@
 	form select {
 		margin-bottom: 10px;
 	}
+	.ui-state-scheduled {
+		border: 1px solid #628db6 !important;
+		background: #92bde6 !important;
+		font-weight: bold !important;
+		color: #325d86 !important;
+	}
 </style>
 <script>
 	$(function(){
@@ -115,9 +127,6 @@
 			});
 		});
 
-		$('.delete-op').on('click', function() {
-
-		});
 		$('.save').on('click', function() {
 			$(this).parent('form').submit();
 		});
@@ -132,7 +141,7 @@
 		});
 		$('.add-task').on('click', function() {
 			var this$ = $(this);
-			var operation_master = {id : $(this).data('ops-id')}
+			var operation_master = {id : $(this).data('ops-id')};
 			$.ajax({
 				type: 'POST',
 				url : window.location.href + '/task/add',
@@ -168,7 +177,91 @@
 			});
 		});
 	});
+</script>
+<script>
+	var dt = new Date();
+	var currentYear = dt.getFullYear();
+	var currentMonth = dt.getMonth() + 1;
+	var selectedDate = [];
 
+	$(function() {
+		$('.datepicker').each(function () {
+			var op_id = $(this).data('operation-id');
+			selectedDate[op_id] = [];
+			$(this).data('date').forEach(function (date) {
+				selectedDate[op_id][date] = 1
+			});
+
+			var datepicker$ = $(this);
+			datepicker$.datepicker({
+				dateFormat: 'yy-mm-dd',
+
+				onSelect: function (date) {
+					if (selectedDate[op_id][date] == null) {
+						selectedDate[op_id][date] = 1;
+					} else {
+						delete selectedDate[op_id][date];
+					}
+
+					setTimeout(function () {
+						for (var i in selectedDate[op_id]) {
+							var data = i.split('-');
+							if (parseInt(data[0]) !== currentYear || parseInt(data[1]) !== currentMonth) {
+								continue
+							}
+							$('[data-operation-id="' + op_id + '"] .ui-datepicker-calendar a').each(function () {
+								var $this = $(this);
+								if (parseInt($this.text()) === parseInt(data[2])) {
+									$this.addClass('ui-state-scheduled');
+								}
+							});
+						}
+					}, 10);
+
+					datepicker$.find("input").val(Object.keys(selectedDate[op_id]));
+				},
+
+				onChangeMonthYear: function (year, month) {
+					currentYear = year;
+					currentMonth = month;
+
+					setTimeout(function () {
+						for (var i in selectedDate[op_id]) {
+							var data = i.split('-');
+							if (parseInt(data[0]) !== currentYear || parseInt(data[1]) !== currentMonth) {
+								continue
+							}
+							$('[data-operation-id="' + op_id + '"] .ui-datepicker-calendar a').each(function () {
+								var $this = $(this);
+								if (parseInt($this.text()) === parseInt(data[2])) {
+									$this.addClass('ui-state-scheduled');
+								}
+							});
+						}
+					}, 10);
+				}
+			});
+
+			setTimeout(function () {
+				for (var i in selectedDate[op_id]) {
+					var data = i.split('-');
+					if (parseInt(data[0]) !== currentYear || parseInt(data[1]) !== currentMonth) {
+						continue
+					}
+					$('[data-operation-id="' + op_id + '"] .ui-datepicker-calendar a').each(function () {
+						var $this = $(this);
+						if (parseInt($this.text()) === parseInt(data[2])) {
+							$this.addClass('ui-state-scheduled');
+						}
+					});
+				}
+			}, 10);
+			datepicker$.find("input").val(Object.keys(selectedDate[op_id]));
+		}) ;
+	});
+</script>
+<script>
+	//	editable jQueryプラグイン
 	$.fn.editable = function(options, callback) {
 		$(this).each(function(){
 			var settings = $.extend({
@@ -242,11 +335,22 @@
 	<h3>config</h3>
 	<%= form_tag({ :controller => 'operation_masters', :action => 'update_config', :project_id => @project }, :method => :post) do %>
 		<div>
+			<p>tracker</p>
+			<select name="tracker">
+				<option></option>
+				<% @trackers.each do |tracker| %>
+					<% if @operation_config.present? && tracker.id == @operation_config.tracker_id %>
+						<option value="<%= tracker.id %>" selected="selected"><%= tracker.name %></option>
+					<% else %>
+						<option value="<%= tracker.id %>"><%= tracker.name %></option>
+					<% end %>
+				<% end %>
+			</select>
 			<p>activity</p>
 			<select name="activity_id">
 				<option></option>
 				<% @activities.each do |activity| %>
-					<% if activity.id == @operation_config.activity_id %>
+					<% if @operation_config.present? && activity.id == @operation_config.activity_id %>
 						<option value="<%= activity.id %>" selected="selected"><%= activity.name %></option>
 					<% else %>
 						<option value="<%= activity.id %>"><%= activity.name %></option>
@@ -257,7 +361,7 @@
 			<select name="progress_status_id">
 				<option></option>
 				<% @issue_statuses.each do |issue_status| %>
-					<% if issue_status.id == @operation_config.progress_status_id %>
+					<% if @operation_config.present? && issue_status.id == @operation_config.progress_status_id %>
 						<option value="<%= issue_status.id %>" selected="selected"><%= issue_status.name %></option>
 					<% else %>
 						<option value="<%= issue_status.id %>"><%= issue_status.name %></option>
@@ -268,7 +372,7 @@
 			<select name="done_status_id">
 				<option></option>
 				<% @issue_statuses.each do |issue_status| %>
-					<% if issue_status.id == @operation_config.done_status_id %>
+					<% if @operation_config.present? && issue_status.id == @operation_config.done_status_id %>
 						<option value="<%= issue_status.id %>" selected="selected"><%= issue_status.name %></option>
 					<% else %>
 						<option value="<%= issue_status.id %>"><%= issue_status.name %></option>

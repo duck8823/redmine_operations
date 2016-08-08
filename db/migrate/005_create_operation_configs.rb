@@ -2,6 +2,8 @@ class CreateOperationConfigs < ActiveRecord::Migration
   def change
     create_table :operation_configs do |t|
 
+      t.integer :tracker_id
+
       t.integer :activity_id
 
       t.integer :done_status_id

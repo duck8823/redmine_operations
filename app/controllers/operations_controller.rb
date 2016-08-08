@@ -6,12 +6,12 @@ class OperationsController < ApplicationController
 
 	def update
 		task = Task.find(params[:task_id].to_i)
-		task.done = params[:checked]
+		task.done = params[:checked].present? && params[:checked] == 'true' ? 1 : 0
 		task.save
 
 		checked_num = 0
 		task.operation.task.each do |op_task|
-			if op_task.done?
+			if op_task.done == 1
 				checked_num = checked_num + 1
 			end
 		end
@@ -21,7 +21,7 @@ class OperationsController < ApplicationController
 		if issue.done_ratio >= 100
 			issue.status = IssueStatus.find(OperationConfig.where(project_id: issue.project.id)[0].done_status_id)
 		elsif issue.done_ratio < 100 && issue.done_ratio > 0
-			issue.status = IssueStatus.find(OperationConfig.where(project_id: issue.project.id)[0].in_progress_status_id)
+			issue.status = IssueStatus.find(OperationConfig.where(project_id: issue.project.id)[0].progress_status_id)
 		end
 		issue.save
 

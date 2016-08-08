@@ -19,7 +19,7 @@
 					<%= task.task_master.content %>
 				</td>
 				<td style="width: 30px">
-					<% if task.done? %>
+					<% if task.done == 1 %>
 						<input type="checkbox" class="ops_task" data-id="<%= task.id %>" checked="checked" />
 					<% else %>
 						<input type="checkbox" class="ops_task" data-id="<%= task.id %>" />
