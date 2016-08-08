@@ -15,4 +15,10 @@ Redmine::Plugin.register :operations do
 	version '0.0.1'
 	url 'https://github.com/duck8823/redmine_operations'
 	author_url 'http://www.duck8823.com/'
+
+	project_module :operations do
+		permission :view_operation_masters, :operation_masters => [:index, :show]
+		permission :manage_operation_masters, :operation_masters => [:create, :edit, :destroy, :update, :add_task, :update_config, :add]
+	end
+	menu :project_menu, :operations, { :controller => 'operation_masters', :action => 'index'}, :param => :project_id
 end

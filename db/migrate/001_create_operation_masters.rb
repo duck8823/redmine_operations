@@ -4,6 +4,12 @@ class CreateOperationMasters < ActiveRecord::Migration
 
       t.text :content
 
+      t.float :estimated_hours
+
+      t.integer :project_id
+
+      t.integer :editable
+
 
     end
 

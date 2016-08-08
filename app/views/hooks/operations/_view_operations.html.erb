@@ -1,6 +1,50 @@
 <% unless @operation.nil? %>
-<hr>
-<p><strong>Operations</strong></p>
-<%= @operation.issue_id %>
-
+	<hr>
+	<p><strong>Operations</strong></p>
+	<table id="operations" class="list">
+		<thead>
+		<tr>
+			<th>#</th>
+			<th>task</th>
+			<th>check</th>
+		</tr>
+		</thead>
+		<tbody>
+		<% @operation.task.each_with_index do |task, i| %>
+			<tr class="<%= i % 2 == 0 ? 'odd' : 'even' %>">
+				<td style="width: 30px">
+					<%= "#{h(i + 1)}" %>
+				</td>
+				<td style="text-align: left">
+					<%= task.task_master.content %>
+				</td>
+				<td style="width: 30px">
+					<% if task.done? %>
+						<input type="checkbox" class="ops_task" data-id="<%= task.id %>" checked="checked" />
+					<% else %>
+						<input type="checkbox" class="ops_task" data-id="<%= task.id %>" />
+					<% end %>
+				</td>
+			</tr>
+		<% end %>
+		</tbody>
+	</table>
+	<style>
+		#operations tr.odd:hover {
+			background-color: #f6f7f8;
+		}
+		#operations tr.even:hover {
+			background-color: #fff;
+		}
+	</style>
+	<script>
+		$(function() {
+			$('.ops_task').on('change', function() {
+				$.post(window.location.href + '/operations/', {
+					task_id: $(this).data('id'),
+					checked: $(this).prop('checked')
+				})
+			});
+		});
+	</script>
 <% end %>

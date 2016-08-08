@@ -1,0 +1,281 @@
+<h2>Operations</h2>
+<% @operation_masters.each do |operation_master| %>
+	<% if operation_master.editable == 0 %>
+		<% next %>
+	<% end %>
+	<%= form_tag({ :controller => 'operation_masters', :action => 'update', :project_id => @project }, :method => :post) do %>
+		<div class="issue">
+			<input type="hidden" name="operation_master[id]" value="<%= operation_master.id %>" />
+			<h3>
+				<span class="operation_master editable" data-id="<%= "ops#{operation_master.id}" %>" data-name="operation_master[content]"><%= operation_master.content %></span>
+			</h3>
+			<hr>
+			<div style="padding: 5px 0">
+				<strong>Tasks</strong>
+				<div style="float: right">
+					<span class="icon icon-time-add"></span>
+					Estimated hours: <span class="editable inline" data-id="<%= "ops#{operation_master.id}_eh" %>" data-name="operation_master[estimated_hours]" ><%= operation_master.estimated_hours %></span>
+				</div>
+			</div>
+			<table class="list tasks">
+				<thead>
+				<tr>
+					<th class="checkbox" style="width: 15px">
+						<%= link_to image_tag('toggle_check.png'), {}, {} %>
+					</th>
+					<th style="width: 30px">
+						#
+					</th>
+					<th>
+						task
+					</th>
+				</tr>
+				</thead>
+				<tbody>
+				<% operation_master.task_master.each_with_index do |task, i| %>
+					<% if task.editable == 0 %>
+						<% next %>
+					<% end %>
+					<tr data-task-id="<%= task.id %>">
+						<td class="checkbox">
+							<input type="checkbox" class="edit_check" />
+						</td>
+						<td style="width: 30px">
+							<%= task.id %>
+							<input type="hidden" name=""<%= "task_master[#{task.id}][id]" %>" value="<%= task.id %>" />
+						</td>
+						<td style="text-align: left">
+							<span class="editable" data-id="<%= "ops#{operation_master.id}_task#{task.id}" %>" data-name="<%= "task_master[#{task.id}][content]" %>"><%= task.content %></span>
+						</td>
+					</tr>
+				<% end %>
+				<tr>
+					<td class="checkbox"></td>
+					<td style="width: 30px">
+						<span class="icon icon-add add-task" data-ops-id="<%= operation_master.id %>"></span>
+					</td>
+					<td>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+			<a class="icon icon-del delete-task">delete</a>
+		</div>
+		<a class="icon icon-save save">save</a>
+		<a class="icon icon-del delete-op">delete</a>
+	<% end %>
+	<hr/>
+<% end %>
+<%= link_to 'add operation', {:controller => 'operation_masters', :action => 'add', :project_id => @project.id}, {:class => 'icon icon-add'} %>
+<style type="text/css">
+	tr:nth-child(odd) {
+		background-color: #f6f7f8;
+	}
+	tr:nth-child(odd):hover {
+		background-color: #f6f7f8 !important;
+	}
+	tr:nth-child(even) {
+		background-color: #fff;
+	}
+	tr:nth-child(even):hover {
+		background-color: #fff !important;
+	}
+	span.icon:hover {
+		cursor: pointer;
+	}
+	a {
+		cursor: pointer;
+	}
+	form p {
+		margin-bottom: 5px;
+	}
+	form select {
+		margin-bottom: 10px;
+	}
+</style>
+<script>
+	$(function(){
+		$('.editable').each(function() {
+			var this$ = $(this);
+
+			var width = function() {
+				if (this$.hasClass('operation_master')) {
+					var issue$ = $('div.issue');
+					return issue$.width() - 2 * issue$.css('padding').replace('px', '');
+				} else {
+					var parent = this$.parent();
+					return parent.width() - 2;
+				}
+			};
+
+			this$.editable({
+				name: this$.data('name'),
+				id: this$.data('id'),
+				width: width()
+			});
+		});
+
+		$('.delete-op').on('click', function() {
+
+		});
+		$('.save').on('click', function() {
+			$(this).parent('form').submit();
+		});
+		$('.delete-task').on('click', function() {
+			$(this).parent('div').find('table tr').each(function(){
+				var tr$ = $(this);
+				var editCheck = tr$.find('.edit_check');
+				if (editCheck != null && editCheck.prop('checked')) {
+					tr$.remove();
+				}
+			});
+		});
+		$('.add-task').on('click', function() {
+			var this$ = $(this);
+			var operation_master = {id : $(this).data('ops-id')}
+			$.ajax({
+				type: 'POST',
+				url : window.location.href + '/task/add',
+				data : {
+					operation_master : operation_master
+				},
+				success: function(response) {
+					var task_master = response.task_master;
+					var tr =
+						"<tr data-task-id='" + task_master.id + "'>" +
+						"<td class='checkbox'>" +
+						"<input type='checkbox' class='edit_check' />" +
+						"</td>" +
+						"<td style='width: 30px'>" +
+						task_master.id +
+						"<input type='hidden' name='task_master[" + task_master.id + "][id]' value='" + task_master.id + "' />" +
+						"</td>" +
+						"<td style='text-align: left'>" +
+						"<span class='editable' data-id='ops"+ operation_master.id + "_task" + task_master.id + "' data-name='task_master[" + task_master.id + "][content]'></span>" +
+						"</td>" +
+						"</tr>";
+
+					this$.parent('td').parent('tr').before(tr);
+
+					$("tr[data-task-id='" + task_master.id + "']").find('.editable').each(function(){
+						$(this).editable({
+							name: $(this).data('name'),
+							id: $(this).data('id'),
+							width: $(this).parent().width() - 2
+						});
+					});
+				}
+			});
+		});
+	});
+
+	$.fn.editable = function(options, callback) {
+		$(this).each(function(){
+			var settings = $.extend({
+				width : 500
+			}, options);
+			if (!settings.name) {
+				throw new Error('options should have name');
+			}
+
+			var editable = $(this);
+			editable.css({
+				'text-decoration' : 'underline',
+				'color' : '#169',
+				'cursor' : 'pointer'
+			});
+			var input = function() {
+				if (editable.hasClass('inline')) {
+					return "<input type='text' id='" + settings.id + "' name='" + settings.name + "' style='width: " + settings.width + "px' hidden='hidden' value='" + editable.text() + "' />";
+				} else {
+					return "<textarea id='" + settings.id + "' name='" + settings.name + "' style='width: " + settings.width + "px' hidden='hidden' >" +
+						editable.text() +
+						"</textarea>"
+				}
+			};
+			editable.after(
+				input() +
+				"<span class='icon icon-edit' data-for='" + settings.id + "'></span>"
+			);
+			var hiddenElem = $("[id='" + settings.id + "']");
+			var editIcon   = $(".icon-edit[data-for='" + settings.id + "']");
+			editIcon.css({
+				'cursor' : 'pointer'
+			});
+
+			editable.on('click', function() {
+				hiddenElem.removeAttr('hidden');
+				editable.attr('hidden', 'hidden');
+				editIcon.attr('hidden', 'hidden');
+			});
+			editIcon.on('click', function() {
+				hiddenElem.removeAttr('hidden');
+				editable.attr('hidden', 'hidden');
+				editIcon.attr('hidden', 'hidden');
+			});
+			$(document).on('click', function() {
+				editable.on('click', function() {
+					event.stopPropagation();
+				});
+				editIcon.on('click', function() {
+					event.stopPropagation();
+				});
+				hiddenElem.on('click', function() {
+					event.stopPropagation();
+				});
+
+				if (editable.text() != hiddenElem.val() && callback != undefined) {
+					callback({value: hiddenElem.val()});
+				}
+
+				editable.text(hiddenElem.val());
+				hiddenElem.attr('hidden', 'hidden');
+				editable.removeAttr('hidden');
+				editIcon.removeAttr('hidden');
+			});
+		});
+		$(document).click();
+	}
+</script>
+
+<% content_for :sidebar do %>
+	<h3>config</h3>
+	<%= form_tag({ :controller => 'operation_masters', :action => 'update_config', :project_id => @project }, :method => :post) do %>
+		<div>
+			<p>activity</p>
+			<select name="activity_id">
+				<option></option>
+				<% @activities.each do |activity| %>
+					<% if activity.id == @operation_config.activity_id %>
+						<option value="<%= activity.id %>" selected="selected"><%= activity.name %></option>
+					<% else %>
+						<option value="<%= activity.id %>"><%= activity.name %></option>
+					<% end %>
+				<% end %>
+			</select>
+			<p>in progress</p>
+			<select name="progress_status_id">
+				<option></option>
+				<% @issue_statuses.each do |issue_status| %>
+					<% if issue_status.id == @operation_config.progress_status_id %>
+						<option value="<%= issue_status.id %>" selected="selected"><%= issue_status.name %></option>
+					<% else %>
+						<option value="<%= issue_status.id %>"><%= issue_status.name %></option>
+					<% end %>
+				<% end %>
+			</select>
+			<p>done</p>
+			<select name="done_status_id">
+				<option></option>
+				<% @issue_statuses.each do |issue_status| %>
+					<% if issue_status.id == @operation_config.done_status_id %>
+						<option value="<%= issue_status.id %>" selected="selected"><%= issue_status.name %></option>
+					<% else %>
+						<option value="<%= issue_status.id %>"><%= issue_status.name %></option>
+					<% end %>
+				<% end %>
+			</select>
+		</div>
+		<a class="icon icon-save save">save</a>
+	<% end %>
+<% end %>
