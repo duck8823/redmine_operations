@@ -336,7 +336,7 @@
 	<%= form_tag({ :controller => 'operation_masters', :action => 'update_config', :project_id => @project }, :method => :post) do %>
 		<div>
 			<p>tracker</p>
-			<select name="tracker">
+			<select name="tracker_id">
 				<option></option>
 				<% @trackers.each do |tracker| %>
 					<% if @operation_config.present? && tracker.id == @operation_config.tracker_id %>
