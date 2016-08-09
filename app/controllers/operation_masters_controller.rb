@@ -53,29 +53,27 @@ class OperationMastersController < ApplicationController
 		end
 		operation_master.save
 
+		associate_ops_issues = []
+		associate_ops_issue_ids = []
 		operation = Operation.where(operation_master_id: operation_master.id)
 		operation.each do |op|
+			associate_ops_issues.push(Issue.find(op.issue_id))
+			associate_ops_issue_ids.push(op.issue_id)
 			op.delete
 		end
 		due_date = params[:operation_date].split(',')
 		if due_date[0].present?
-			issues = Issue.where("due_date NOT IN (#{due_date.to_s.gsub(/"/, "'").gsub(/^\[|\]$/, '')})")
-			issue_ids = []
-			issues.each do |issue|
-				issue_ids.push(issue.id)
-				issue.delete
-			end
-			delete_ops = Operation.where("issue_id NOT IN (#{issue_ids.to_s.gsub(/^\[|\]$/, '')})")
-			delete_ops.each do |op|
-				op.delete
+			associate_ops_issues.each do |issue|
+				unless due_date.include?(issue.due_date.to_s)
+					issue.delete
+				end
 			end
 
 			due_date.each do |date|
-				issue = Issue.where({
-																project_id: @project,
-																start_date: date,
-																due_date: date
-														})[0]
+				issue = nil
+				if associate_ops_issues.length > 0
+					issue = Issue.where("project_id = '#{@project.id}' AND start_date = '#{date}' AND due_date = '#{date}' AND id IN (#{associate_ops_issue_ids.to_s.gsub(/^\[|\]$/,'')})")[0]
+				end
 				if issue.nil?
 					issue = Issue.create!({
 																		project_id: @project,
@@ -107,7 +105,12 @@ class OperationMastersController < ApplicationController
 					end
 				end
 			end
+		else
+			associate_ops_issues.each do |issue|
+				issue.delete
+			end
 		end
+
 
 
 		redirect_to action: 'index'
