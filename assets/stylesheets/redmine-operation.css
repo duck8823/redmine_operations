@@ -1,0 +1,30 @@
+tr:nth-child(odd) {
+	background-color: #f6f7f8;
+}
+tr:nth-child(odd):hover {
+	background-color: #f6f7f8 !important;
+}
+tr:nth-child(even) {
+	background-color: #fff;
+}
+tr:nth-child(even):hover {
+	background-color: #fff !important;
+}
+span.icon:hover {
+	cursor: pointer;
+}
+a {
+	cursor: pointer;
+}
+form p {
+	margin-bottom: 5px;
+}
+form select {
+	margin-bottom: 10px;
+}
+.ui-state-scheduled {
+	border: 1px solid #628db6 !important;
+	background: #92bde6 !important;
+	font-weight: bold !important;
+	color: #325d86 !important;
+}
