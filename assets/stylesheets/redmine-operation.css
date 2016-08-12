@@ -28,3 +28,6 @@ form select {
 	font-weight: bold !important;
 	color: #325d86 !important;
 }
+.ui-datepicker-header {
+	height: 22px;
+}
