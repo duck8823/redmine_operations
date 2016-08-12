@@ -20,3 +20,5 @@ ja:
         inProgress: "進行中のステータス"
         done: "終了時のステータス"
   label_operations: "運用"
+  project_module_redmine_operations: "運用"
+  permission_manage_operation_masters: "運用作業の編集"

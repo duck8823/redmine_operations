@@ -20,3 +20,5 @@ en:
         inProgress: "Status in Progress"
         done: "Finished Status"
   label_operations: "Operations"
+  project_module_redmine_operations: "Operations"
+  permission_manage_operation_masters: "Manage Operations"

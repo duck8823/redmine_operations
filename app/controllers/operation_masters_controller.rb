@@ -25,15 +25,6 @@ class OperationMastersController < ApplicationController
 		end
 	end
 
-	def show
-	end
-
-	def create
-	end
-
-	def edit
-	end
-
 	def update
 		task_masters = []
 		operation_master = OperationMaster.find(params[:operation_master]['id'])
@@ -153,9 +144,6 @@ class OperationMastersController < ApplicationController
 														})
 
 		redirect_to action: 'index'
-	end
-
-	def destroy
 	end
 
 	private def delete_operations(operations)
