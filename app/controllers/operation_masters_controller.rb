@@ -55,16 +55,21 @@ class OperationMastersController < ApplicationController
 
 		associate_ops_issues = []
 		associate_ops_issue_ids = []
-		operation = Operation.where(operation_master_id: operation_master.id)
-		operation.each do |op|
+		operations = Operation.where(operation_master_id: operation_master.id)
+		operations.each do |op|
 			associate_ops_issues.push(Issue.find(op.issue_id))
 			associate_ops_issue_ids.push(op.issue_id)
-			op.delete
 		end
 		due_date = params[:operation_date].split(',')
-		if due_date[0].present?
+		if due_date[0].blank?
+			associate_ops_issues.each do |issue|
+				delete_operations(operations)
+				issue.delete
+			end
+		else
 			associate_ops_issues.each do |issue|
 				unless due_date.include?(issue.due_date.to_s)
+					delete_operations(operations)
 					issue.delete
 				end
 			end
@@ -86,33 +91,27 @@ class OperationMastersController < ApplicationController
 				else
 					issue.subject = operation_master.content
 				end
-
 				issue.save
 
-				operation = Operation.create!({
-																					issue_id: issue.id,
-																					operation_master_id: operation_master.id
-																			})
-				operation.save
-
-				task_masters.each do |task_master|
-					if task_master.editable == 1
-						task = Task.create!({
-																		task_master_id: task_master.id,
-																		operation_id: operation.id
-																})
-						task.save
+				operation = Operation.where({issue_id: issue.id})[0]
+				if operation.nil?
+					operation = Operation.create!({
+																						issue_id: issue.id,
+																						operation_master_id: operation_master.id
+																				})
+					operation.save
+					task_masters.each do |task_master|
+						if task_master.editable == 1
+							task = Task.create!({
+																			task_master_id: task_master.id,
+																			operation_id: operation.id
+																	})
+							task.save
+						end
 					end
 				end
 			end
-		else
-			associate_ops_issues.each do |issue|
-				issue.delete
-			end
 		end
-
-
-
 		redirect_to action: 'index'
 	end
 
@@ -159,8 +158,17 @@ class OperationMastersController < ApplicationController
 	def destroy
 	end
 
-	private
-	def find_project
+	private def delete_operations(operations)
+		operations.each do |op|
+			tasks = Task.where(operation_id: op.id)
+			tasks.each do |task|
+				task.delete
+			end
+			op.delete
+		end
+	end
+
+	private def find_project
 		@project = Project.find(params[:project_id])
 	rescue ActiveRecord::RecordNotFound
 		render_404
