@@ -1,3 +1,22 @@
 # English strings go here for Rails i18n
 en:
-  # my_label: "My label"
+  view:
+    operations:
+      title: "Operations"
+      list:
+        task: "Task"
+        check: "Done"
+      config:
+        title: "Configuration"
+        tasks: "Tasks"
+        estimatedHours: "Estimated Hours"
+        schedule: "schedule"
+        delete: "Delete"
+        save: "Save"
+        addOperation: "Add Operation"
+        addTask: "Add Task"
+        tracker: "Tracker for Ticket"
+        activity: "Activity for Spent time"
+        inProgress: "Status in Progress"
+        done: "Finished Status"
+  label_operations: "Operations"

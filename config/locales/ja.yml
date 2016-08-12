@@ -1,0 +1,22 @@
+# Japanese strings go here for Rails i18n
+ja:
+  view:
+    operations:
+      title: "運用"
+      list:
+        task: "タスク"
+        check: "実施済み"
+      config:
+        title: "設定"
+        tasks: "タスク"
+        estimatedHours: "推定時間"
+        schedule: "スケジュール"
+        delete: "削除"
+        save: "保存"
+        addOperation: "追加"
+        addTask: "タスクの追加"
+        tracker: "チケットに利用するトラッカー"
+        activity: "作業時間に利用する活動"
+        inProgress: "進行中のステータス"
+        done: "終了時のステータス"
+  label_operations: "運用"

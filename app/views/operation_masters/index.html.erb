@@ -1,4 +1,4 @@
-<h2>Operations</h2>
+<h2><%= t('view.operations.title') %></h2>
 <% @operation_masters.each do |operation_master| %>
 	<% if operation_master.editable == 0 %>
 		<% next %>
@@ -11,10 +11,10 @@
 			</h3>
 			<hr>
 			<div style="padding: 5px 0">
-				<strong>Tasks</strong>
+				<strong><%= t('view.operations.config.tasks') %></strong>
 				<div style="float: right">
 					<span class="icon icon-time-add"></span>
-					Estimated hours: <span class="editable inline" data-id="<%= "ops#{operation_master.id}_eh" %>" data-name="operation_master[estimated_hours]" ><%= operation_master.estimated_hours %></span>
+					<%= t('view.operations.config.estimatedHours') %>: <span class="editable inline" data-id="<%= "ops#{operation_master.id}_eh" %>" data-name="operation_master[estimated_hours]" ><%= operation_master.estimated_hours.present? ? operation_master.estimated_hours : '0.0'  %></span>
 				</div>
 			</div>
 			<table class="list tasks">
@@ -26,9 +26,7 @@
 					<th style="width: 30px">
 						#
 					</th>
-					<th>
-						task
-					</th>
+					<th><%= t('view.operations.list.task') %></th>
 				</tr>
 				</thead>
 				<tbody>
@@ -59,20 +57,20 @@
 				</tr>
 				</tbody>
 			</table>
-			<a class="icon icon-del delete-task">delete</a>
+			<a class="icon icon-del delete-task"><%= t('view.operations.config.delete') %></a>
 			<hr/>
-			<strong>Schedule</strong>
+			<strong><%= t('view.operations.config.schedule') %></strong>
 			<div class="datepicker" data-operation-id="<%= operation_master.id %>" data-date="<%= @date[operation_master.id] %>">
 				<input type="hidden" name="operation_date" />
 			</div>
 		</div>
-		<a class="icon icon-save save">save</a>
-		<%= link_to 'delete', {:controller => 'operation_masters', :action => 'delete', :operation_master_id => operation_master.id}, {:class => 'icon icon-del'} %>
+		<a class="icon icon-save save"><%= t('view.operations.config.save') %></a>
+		<%= link_to t('view.operations.config.delete'), {:controller => 'operation_masters', :action => 'delete', :operation_master_id => operation_master.id}, {:class => 'icon icon-del'} %>
 	<% end %>
 	<hr/>
 
 <% end %>
-<%= link_to 'add operation', {:controller => 'operation_masters', :action => 'add', :project_id => @project.id}, {:class => 'icon icon-add'} %>
+<%= link_to t('view.operations.config.addOperation'), {:controller => 'operation_masters', :action => 'add', :project_id => @project.id}, {:class => 'icon icon-add'} %>
 
 <%= stylesheet_link_tag 'redmine-operation.css', :plugin => 'redmine_operations', :media => 'all' %>
 <%= javascript_include_tag 'jquery.redmine-operation.js', :plugin => 'redmine_operations' %>
@@ -80,10 +78,10 @@
 <%= javascript_include_tag 'jquery.editable.js', :plugin => 'redmine_operations' %>
 
 <% content_for :sidebar do %>
-	<h3>config</h3>
+	<h3><%= t('view.operations.config.title') %></h3>
 	<%= form_tag({ :controller => 'operation_masters', :action => 'update_config', :project_id => @project }, :method => :post) do %>
 		<div>
-			<p>tracker</p>
+			<p><%= t('view.operations.config.tracker') %></p>
 			<select name="tracker_id">
 				<option></option>
 				<% @trackers.each do |tracker| %>
@@ -94,7 +92,7 @@
 					<% end %>
 				<% end %>
 			</select>
-			<p>activity</p>
+			<p><%= t('view.operations.config.activity') %></p>
 			<select name="activity_id">
 				<option></option>
 				<% @activities.each do |activity| %>
@@ -105,7 +103,7 @@
 					<% end %>
 				<% end %>
 			</select>
-			<p>in progress</p>
+			<p><%= t('view.operations.config.inProgress') %></p>
 			<select name="progress_status_id">
 				<option></option>
 				<% @issue_statuses.each do |issue_status| %>
@@ -116,7 +114,7 @@
 					<% end %>
 				<% end %>
 			</select>
-			<p>done</p>
+			<p><%= t('view.operations.config.done') %></p>
 			<select name="done_status_id">
 				<option></option>
 				<% @issue_statuses.each do |issue_status| %>
@@ -128,6 +126,6 @@
 				<% end %>
 			</select>
 		</div>
-		<a class="icon icon-save save">save</a>
+		<a class="icon icon-save save"><%= t('view.operations.config.save') %></a>
 	<% end %>
 <% end %>

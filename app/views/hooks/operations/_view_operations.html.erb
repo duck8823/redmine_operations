@@ -1,12 +1,12 @@
 <% unless @operation.nil? %>
 	<hr>
-	<p><strong>Operations</strong></p>
+	<p><strong><%= t('view.operations.title') %></strong></p>
 	<table id="operations" class="list">
 		<thead>
 		<tr>
 			<th>#</th>
-			<th>task</th>
-			<th>check</th>
+			<th><%= t('view.operations.list.task') %></th>
+			<th><%= t('view.operations.list.check') %></th>
 		</tr>
 		</thead>
 		<tbody>
