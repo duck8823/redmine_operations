@@ -1,3 +1,9 @@
-= operations
+= Redmine Operations
+This is redmine plugin for operations.
 
-Description goes here
+== Installation
+  git clone https://github.com/duck8823/redmine_operations.git plugins/redmine_operations
+  rake redmine:plugins:migrate RAILS_ENV=production
+
+== LICENSE
+MIT License
