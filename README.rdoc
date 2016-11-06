@@ -1,6 +1,8 @@
 = Redmine Operations
 This is redmine plugin for operations.
 
+http://blog.duck8823.com/entry/2016/08/13/013708
+
 == Installation
   git clone https://github.com/duck8823/redmine_operations.git plugins/redmine_operations
   rake redmine:plugins:migrate RAILS_ENV=production
